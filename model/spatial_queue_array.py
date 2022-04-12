@@ -29,6 +29,7 @@ class Network:
         self.link_fft_dict = dict()
         self.link_lanes_dict = dict()
         self.link_capacity_dict = dict()
+        self.link_previous_sr_100 = None
     
     def prepare_nodes(self, nodes_df, ods_df):
         ### nodes_df must contain the following columns
@@ -77,11 +78,14 @@ class Network:
         ### add other attributes
         self.links = pd.concat([self.links, virtual_links_df[self.links.columns]])
         self.links['fft'] = self.links['length']/(self.links['maxmph']*1609/3600)
-        self.links['capacity'] = self.links['lanes'] * 1000/3600
+        self.links['capacity'] = self.links['lanes'] * 1800/3600
         self.links['storage'] = self.links['length'] * self.links['lanes']
         self.links['storage'] = np.where(self.links['storage']<18, 18, self.links['storage'])
+        
+        self.link_previous_sr_100 = np.ones((self.links.shape[0], 100)) #record the link storage_remain in the previous 100 seconds,default is 1
+
         self.links = self.links[['link_id', 'start_node_id', 'end_node_id', 'link_type', 'length', 'lanes', 'maxmph', 'fft', 'capacity', 'storage', 'geometry']]
- 
+
     def node_movements(self):
 
         link_out_coord = dict()
@@ -222,7 +226,15 @@ class Network:
         self.links['undeparted'] = self.links['link_id'].map(link_undeparted_dict).fillna(0)
         self.links['queue'] = self.links['link_id'].map(link_queue_dict).fillna(0)
         self.links['run'] = self.links['link_id'].map(link_run_dict).fillna(0)
-        self.links['storage_remain'] = self.links['storage'] - (self.links['run'] + self.links['queue'])*8
+
+        position = [i for i in range(self.link_previous_sr_100.shape[0]) if len(self.link_previous_sr_100[i][self.link_previous_sr_100[i]<=0]) == len(self.link_previous_sr_100[i])]
+        current_time_storage_remain = (self.links['storage'] - (self.links['run'] + self.links['queue'])*8).values
+        self.link_previous_sr_100[:,1:] = self.link_previous_sr_100[:,:-1]
+        self.link_previous_sr_100[:,0] = current_time_storage_remain
+        current_time_storage_remain[position] = 9
+
+        self.links['storage_remain'] = current_time_storage_remain
+
 
         return agents_df
     

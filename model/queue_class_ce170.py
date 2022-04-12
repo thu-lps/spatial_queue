@@ -11,7 +11,7 @@ from shapely.wkt import loads
 ### usr
 abs_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, abs_path)
-sys.path.insert(0, "/home/bingyu/Documents")
+sys.path.insert(0, "/Users/apple/Documents/GitHub")
 from sp import interface
 
 ### profile
