@@ -154,7 +154,7 @@ with open(arrival_output_path_1, 'w') as t_stats_outfile:
 t_start_vect = time.time()
 for t in range(t_end):
     # run the spatial-queue simulation for one step
-    simulation_vect.run_one_step(t, reroute_frequency=1800)
+    simulation_vect.run_one_step(t, reroute_frequency=1860)
 
     if t%100 == 0:
         if bg_exist == 1:

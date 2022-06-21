@@ -30,6 +30,7 @@ class Network:
         self.link_fft_dict = dict()
         self.link_lanes_dict = dict()
         self.link_capacity_dict = dict()
+        self.link_enter_leave_df = pd.DataFrame(columns = ['agent_id', 'current_link', 'current_link_enter_time', 'current_link_leave_time'])
     
     def prepare_nodes(self, nodes_df, ods_df):
         ### nodes_df must contain the following columns
@@ -344,6 +345,7 @@ class Network:
         
         ### update agent position
         go_ids = go_agents_df['agent_id']
+
         agent_clnl_update = {getattr(agent, 'agent_id'): self.find_next_link(agent, agent_routes) for agent in go_agents_df.itertuples()}
         #if len(keep)>0:
         #    print(agent_clnl_update[keep[0]])
@@ -352,6 +354,13 @@ class Network:
         agents_df.loc[agents_df['agent_id'].isin(go_ids), 'agent_status'] = 1
         agents_df.loc[agents_df['agent_id'].isin(go_ids), 'current_link_enter_time'] = t
         agents_df['agent_status'] = np.where(agents_df['current_link']=='vl_sink', -1, agents_df['agent_status'])
+
+        go_agents_df = go_agents_df[['agent_id', 'current_link', 'current_link_enter_time']]
+        go_agents_df['current_link_leave_time'] = t
+        self.link_enter_leave_df = pd.concat((self.link_enter_leave_df, go_agents_df))
+        if (t % 600 == 1) & (t != 1):
+            self.link_enter_leave_df = pd.DataFrame(columns = ['agent_id', 'current_link', 'current_link_enter_time', 'current_link_leave_time'])
+
 
         return agents_df
         

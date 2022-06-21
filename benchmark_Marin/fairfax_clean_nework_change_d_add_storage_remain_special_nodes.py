@@ -39,7 +39,7 @@ od_df['agent_id'] = np.arange(120000, 120000 + len(od_df))
 ### these are done for the vectorized implementation
 if bg_exist == 1:
     special_nodes = {'first_priority':[], 'second_priority':[]}
-    background_od = pd.read_csv('traffic_inputs/{}/background_ods_day_for_Marin_new_change_marin_side_od.csv'.format(case,case), float_precision = "round_trip")
+    background_od = pd.read_csv('traffic_inputs/{}/background_ods_day_for_Marin_new_change_marin_side_od.csv'.format(case), float_precision = "round_trip")
     #background_od = background_od.sample(frac=1)
     background_od['agent_id'] = np.arange(len(background_od))
     od_df = pd.concat([od_df, background_od]).sample(frac=1)
@@ -170,7 +170,7 @@ for t in range(t_end):
     # output time-step results every 100 seconds
     if t%100 == 0:
         if not arrival_counts_vect(t, simulation_vect, arrival_output_path,arrival_output_path_1):
-            write_loops(simulation_vect, 'traffic_outputs/{}/with_bg/loop_add_srsn/loops.xlsx'.format(case))
+            write_loops(simulation_vect, 'traffic_outputs/{}/with_bg/loop_add_srsn/loop_add_srsn.xlsx'.format(case))
             write_all_link_outputs_vect(simulation_vect, 'traffic_outputs/{}/with_bg/link_stats_add_srsn/l{}_at_{}_all_links.csv'.format(case, scenario_name, t))
             break
 
